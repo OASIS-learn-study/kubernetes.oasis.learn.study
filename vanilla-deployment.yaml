@@ -42,4 +42,6 @@ spec:
           mountPath: /data
       volumes:
       - name: mc-data
-        emptyDir: {}
+        hostPath:
+          path: /kube-volumes/minecraft/mc-vanilla-1/
+          type: Directory
