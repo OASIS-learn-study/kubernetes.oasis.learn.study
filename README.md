@@ -14,6 +14,7 @@ You can now connect to your Minecraft Server on port 30000 on the Node where Kub
 
 - [ ] Volume
 - [ ] Backup?
+- [ ] [Healthcheck](https://github.com/itzg/docker-minecraft-server#healthcheck)
 - [ ] Sponge
 - [ ] https://github.com/OASIS-learn-study/swissarmyknife-minecraft-server
 - [ ] https://github.com/itzg/docker-minecraft-server#server-icon

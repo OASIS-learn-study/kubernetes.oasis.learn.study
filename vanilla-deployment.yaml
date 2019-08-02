@@ -32,6 +32,8 @@ spec:
         - name: VERSION
           # https://github.com/itzg/docker-minecraft-server#versions
           value: "LATEST"
+        - name: MOTD
+          value: "Minecraft on Kubernetes"
         ports:
         - containerPort: 25565
           name: main
