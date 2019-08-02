@@ -31,9 +31,17 @@ You can now connect to your Minecraft Server on port 30000 on the Node where Kub
 
 ## References
 
+### Servers
+
 * https://github.com/itzg/docker-minecraft-server
-* https://github.com/itzg/docker-minecraft-bedrock-server
-* https://github.com/stgarf/minecraft-operator-go
-* https://github.com/heptio/tgik/tree/master/episodes/083
+* https://github.com/itzg/docker-mc-backup
 * https://github.com/itzg/mc-router
+* https://github.com/itzg/docker-minecraft-bedrock-server
 * https://github.com/itzg/docker-bungeecord
+
+### Kubernetes Operators
+
+* https://github.com/stgarf/minecraft-operator-go
+* https://github.com/jbeda/kinecraft
+* https://github.com/heptio/tgik/tree/master/episodes/083
+* https://github.com/fabianvf/game-server-operator
