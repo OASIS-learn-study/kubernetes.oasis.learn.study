@@ -31,7 +31,7 @@ spec:
           value: "true"
         - name: VERSION
           # https://github.com/itzg/docker-minecraft-server#versions
-          value: "LATEST"
+          value: "1.14.4"
         - name: MOTD
           value: "Minecraft on Kubernetes"
         ports:
