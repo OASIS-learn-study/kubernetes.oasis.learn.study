@@ -56,8 +56,29 @@ spec:
         volumeMounts:
         - name: mc-data
           mountPath: /data
+      - name: mc-backup
+        image: itzg/mc-backup
+        env:
+          - name: BACKUP_INTERVAL
+            value: "24h"
+          - name: PRUNE_BACKUPS_DAYS
+            value: "31"
+          - name: INITIAL_DELAY
+            value: "5s"
+          - name: BACKUP_NAME
+            value: mc-vanilla
+        volumeMounts:
+          - name: mc-data
+            mountPath: /data
+            readOnly: true
+          - name: mc-backups
+            mountPath: /backups
       volumes:
       - name: mc-data
         hostPath:
           path: /kube-volumes/minecraft/mc-vanilla-1/
+          type: Directory
+      - name: mc-backups
+        hostPath:
+          path: /kube-volumes/minecraft-backup/mc-vanilla-1/
           type: Directory
