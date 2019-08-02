@@ -21,7 +21,7 @@ You can now connect to your Minecraft Server on port 30000 on the Node where Kub
 - [X] Volume
 - [ ] [Backup](https://github.com/itzg/docker-mc-backup)
 - [ ] load from Google Cloud Storage, copy backups to Google Cloud Storage
-- [ ] [Healthcheck](https://github.com/itzg/docker-minecraft-server#healthcheck)
+- [X] [Healthcheck](https://github.com/itzg/docker-minecraft-server#healthcheck)
 - [ ] Sponge
 - [ ] https://github.com/OASIS-learn-study/swissarmyknife-minecraft-server
 - [ ] mc-router
