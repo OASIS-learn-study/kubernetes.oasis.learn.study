@@ -36,3 +36,4 @@ You can now connect to your Minecraft Server on port 30000 on the Node where Kub
 * https://github.com/stgarf/minecraft-operator-go
 * https://github.com/heptio/tgik/tree/master/episodes/083
 * https://github.com/itzg/mc-router
+* https://github.com/itzg/docker-bungeecord
