@@ -33,6 +33,7 @@ You can now connect to your Minecraft Server on port 30000 on the Node where Kub
 - [ ] mc-router
 - [ ] https://github.com/itzg/docker-minecraft-server#server-icon
 - [ ] custom derived container with JAR etc. pre-loaded
+- [ ] Bedrock via itzg/docker-minecraft-bedrock-server and (or?) explore https://minecraft.gamepedia.com/Bedrock_Edition_server_software#Protocol_Translator_list
 
 
 ## References
