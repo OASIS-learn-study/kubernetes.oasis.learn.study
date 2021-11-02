@@ -29,7 +29,13 @@ _TODO: **Verify this!** But the underlying Persistent Disks (PDs) are not delete
 
 ## Development
 
-    podman run -p 25565:25565 -e EULA=TRUE -e VERSION=1.17.1 --rm --name mcs itzg/minecraft-server
+### Kubernetes
+
+    kubectl exec mc-vanilla-0 -- mc-monitor status
+
+### Docker
+
+    podman run -p 25565:25565 -e EULA=TRUE -e VERSION=1.17.1 -e MODE=CREATIVE --rm --name mcs itzg/minecraft-server
 
     podman rm -f mcs
 
@@ -38,7 +44,12 @@ _TODO: **Verify this!** But the underlying Persistent Disks (PDs) are not delete
 
 - [X] Persistent Volume
 - [X] Set appropriate resource constraints
+- [ ] Readyness and liveness are broken and take a very long time, causing Service to not work.
+      (NB: If it still doesn't seem work even after `k describe pod mc-vanilla-0` reports Ready is True,
+       then it's probably jsut that the service's external IP has changed after a `delete` and re-`apply`...;)
+- [ ] Locally test: 1. Creative, 2. with all items, 3. with slash commands. Custom server.properties?
 - [ ] Test PV.. survives YAML delete & apply? Survives cluster delete / apply?
+- [ ] Storage Class?
 - [ ] DNS names instead of IP
 - [ ] Two servers, with https://github.com/itzg/mc-router/tree/master/docs
 - [ ] https://github.com/itzg/docker-bungeecord, with https://github.com/itzg/minecraft-server-charts/tree/master/charts/minecraft-proxy
@@ -48,6 +59,7 @@ _TODO: **Verify this!** But the underlying Persistent Disks (PDs) are not delete
 - [ ] `/server list`, `/server create`
 - [ ] https://github.com/itzg/mc-monitor on StackDriver, see
       https://github.com/GoogleCloudPlatform/k8s-stackdriver/tree/master/prometheus-to-sd
+      `kubectl exec mc-vanilla-0 -- mc-monitor export-for-prometheus -servers localhost`
 - [ ] Scale Down StatefulSet to 0 when no Players for N minutes, query via monitoring!
 - [ ] JVM monitoring, separate from `mc-monitor`
 - [ ] Freemium ;) time bomb :) It's an extension of scaling down.
