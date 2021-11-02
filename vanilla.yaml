@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mc-vanilla
+  labels:
+    app: mc-vanilla
+spec:
+  ports:
+  - port: 25565
+    targetPort: 25565
+    name: minecraft
+  selector:
+    app: mc-vanilla
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mc-vanilla
+spec:
+  selector:
+    matchLabels:
+      app: mc-vanilla
+  serviceName: "mc-vanilla"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mc-vanilla
+    spec:
+      # https://kubernetes.io/docs/tasks/run-application/force-delete-stateful-set-pod/ ?
+      # terminationGracePeriodSeconds: 13
+      containers:
+      - image: itzg/minecraft-server
+        name: mc-vanilla
+        resources:
+          requests:
+            memory: "2048Mi"
+            cpu: "2"
+          limits:
+            memory: "2048Mi"
+            cpu: "4"
+        env:
+        - name: EULA
+          value: "true"
+        - name: VERSION
+          # https://github.com/itzg/docker-minecraft-server#versions
+          value: "1.17.1"
+        - name: MOTD
+          value: "Minecraft Demo on Kubernetes"
+        ports:
+        - containerPort: 25565
+          name: minecraft
+        readinessProbe:
+          exec:
+            command:
+            - mcstatus
+            - localhost
+            - ping
+          initialDelaySeconds: 300
+          periodSeconds: 300
+        livenessProbe:
+          exec:
+            command:
+            - mcstatus
+            - localhost
+            - ping
+          initialDelaySeconds: 300
+          periodSeconds: 300
+        volumeMounts:
+        - name: mc-data
+          mountPath: /data
+  volumeClaimTemplates:
+  - metadata:
+      name: mc-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      # storageClassName: "my-storage-class"
+      resources:
+        requests:
+          storage: 1Gi
