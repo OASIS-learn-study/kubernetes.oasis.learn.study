@@ -19,6 +19,10 @@ https://github.com/vorburger/LearningKubernetes-CodeLabs/blob/develop/docs/insta
     kubectl describe pod mc-vanilla-0
     kubectl logs -f mc-vanilla-0
 
+You can stop the server by scaling it down using (and back up with `--replicas=1`):
+
+    k scale statefulset mc-vanilla --replicas=0
+
 You can now connect to your Minecraft Server on port 30000 on the Node where Kubernetes scheduled your Pod. To tear down:
 
     gcloud container clusters delete cluster1
@@ -35,8 +39,8 @@ _TODO: **Verify this!** But the underlying Persistent Disks (PDs) are not delete
 
 ### Docker
 
-    podman run -p 25565:25565 -e EULA=TRUE -e VERSION=1.17.1 -e MODE=CREATIVE --rm --name mcs itzg/minecraft-server
-
+    mkdir /tmp/mcs
+    podman run -p 25565:25565 -e EULA=TRUE -e VERSION=1.17.1 -e MODE=1 -v /tmp/mcs:/data:Z --rm --name mcs itzg/minecraft-server
     podman rm -f mcs
 
 
@@ -50,6 +54,7 @@ _TODO: **Verify this!** But the underlying Persistent Disks (PDs) are not delete
 - [ ] Locally test: 1. Creative, 2. with all items, 3. with slash commands. Custom server.properties?
 - [ ] Test PV.. survives YAML delete & apply? Survives cluster delete / apply?
 - [ ] Storage Class?
+- [ ] GitOps, `/data` on a git repo, side container
 - [ ] DNS names instead of IP
 - [ ] Two servers, with https://github.com/itzg/mc-router/tree/master/docs
 - [ ] https://github.com/itzg/docker-bungeecord, with https://github.com/itzg/minecraft-server-charts/tree/master/charts/minecraft-proxy
@@ -62,6 +67,7 @@ _TODO: **Verify this!** But the underlying Persistent Disks (PDs) are not delete
       `kubectl exec mc-vanilla-0 -- mc-monitor export-for-prometheus -servers localhost`
 - [ ] Scale Down StatefulSet to 0 when no Players for N minutes, query via monitoring!
 - [ ] JVM monitoring, separate from `mc-monitor`
+- [ ] https://filebrowser.org/features integration
 - [ ] Freemium ;) time bomb :) It's an extension of scaling down.
 - [ ] https://github.com/OASIS-learn-study/swissarmyknife-minecraft-server
 - [ ] https://github.com/itzg/docker-minecraft-server#server-icon

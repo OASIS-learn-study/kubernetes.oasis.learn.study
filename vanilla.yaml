@@ -45,7 +45,7 @@ spec:
           # https://github.com/itzg/docker-minecraft-server#versions
           value: "1.17.1"
         - name: MODE
-          value: "CREATIVE"
+          value: "1"
         - name: MOTD
           value: "Minecraft Demo on Kubernetes"
         - name: EULA
