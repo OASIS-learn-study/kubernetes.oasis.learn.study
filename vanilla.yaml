@@ -9,6 +9,9 @@ spec:
   - port: 25565
     targetPort: 25565
     name: minecraft
+  - port: 25575
+    targetPort: 25575
+    name: rcon
   selector:
     app: mc-vanilla
   type: LoadBalancer
@@ -41,6 +44,13 @@ spec:
             memory: "2048Mi"
             cpu: "4"
         env:
+        - name: RCON_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mc-vanilla
+              key: rcon
+        - name: ENABLE_RCON
+          value: "true"
         - name: VERSION
           # https://github.com/itzg/docker-minecraft-server#versions
           value: "1.17.1"
@@ -53,6 +63,8 @@ spec:
         ports:
         - containerPort: 25565
           name: minecraft
+        - containerPort: 25575
+          name: rcon
 #        readinessProbe:
 #          exec:
 #            command:

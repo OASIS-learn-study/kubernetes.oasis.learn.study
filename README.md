@@ -7,23 +7,31 @@ Resources to run Minecraft on a Kubernetes cluster.
 
 https://github.com/vorburger/LearningKubernetes-CodeLabs/blob/develop/docs/install.md#google-kubernetes-engine-gke
 
-~~This currently uses a Kubernetes Volume of type hostPath, and as such is only really suitable for simple single node clusters:~~
-
     gcloud --project=oasis-learn-study container clusters create-auto cluster1 --zone=europe-west4
     gcloud container clusters get-credentials cluster1 --project=oasis-learn-study --region=europe-west4
 
+    pwgen -s 101 1 | kubectl create secret generic mc-vanilla --from-file=rcon=/dev/stdin
     kubectl apply -f vanilla.yaml
     kubectl get service mc-vanilla
+
+You can connect to your Minecraft Server at the `EXTERNAL-IP` shown. To troubleshoot & debug startup issues, use:
 
     kubectl rollout status sts/mc-vanilla
     kubectl describe pod mc-vanilla-0
     kubectl logs -f mc-vanilla-0
 
+You can use an [RCON](https://wiki.vg/RCON) client such as [`rcon-cli`](https://github.com/itzg/rcon-cli) to connect to the admin console: (But please note that the RCON protocol is not encrypted, meaning that your passwords are transmitted in plain text to the server. A future version of this project may include a more secure web-based admin console, instead.)
+
+    go get github.com/itzg/rcon-cli
+    rcon-cli --host=34.91.151.169 --port=25575 --password=(kubectl get secret mc-vanilla -o jsonpath={.data.rcon} | base64 --decode)
+    /list
+    /op $YOURSELF
+
 You can stop the server by scaling it down using (and back up with `--replicas=1`):
 
-    k scale statefulset mc-vanilla --replicas=0
+    kubectl scale statefulset mc-vanilla --replicas=0
 
-You can now connect to your Minecraft Server on port 30000 on the Node where Kubernetes scheduled your Pod. To tear down:
+To tear down the entire cluster:
 
     gcloud container clusters delete cluster1
 
@@ -36,6 +44,12 @@ _TODO: **Verify this!** But the underlying Persistent Disks (PDs) are not delete
 ### Kubernetes
 
     kubectl exec mc-vanilla-0 -- mc-monitor status
+
+    kubectl exec mc-vanilla-0 -- bash -c 'echo $RCON_PASSWORD'
+
+**BEWARE** that YAML changes to `env`ironment variables of `itzg/minecraft-server` container will NOT affect existing servers with the image, because many of it's startup parameter environment variables are written into the persistent `/data/server.properties` only when the `StatefulSet` PV is automatically created the first time. To remove that (and **loose your world data**) we have to delete the PVC (which also deletes the PD):
+
+    kubectl delete pvc mc-data-mc-vanilla-0
 
 ### Docker
 
@@ -51,7 +65,7 @@ _TODO: **Verify this!** But the underlying Persistent Disks (PDs) are not delete
 - [ ] Readyness and liveness are broken and take a very long time, causing Service to not work.
       (NB: If it still doesn't seem work even after `k describe pod mc-vanilla-0` reports Ready is True,
        then it's probably jsut that the service's external IP has changed after a `delete` and re-`apply`...;)
-- [ ] Locally test: 1. Creative, 2. with all items, 3. with slash commands. Custom server.properties?
+- [X] Locally test: 1. Creative, 2. with all items, 3. with slash commands. Custom server.properties?
 - [ ] Test PV.. survives YAML delete & apply? Survives cluster delete / apply?
 - [ ] Storage Class?
 - [ ] GitOps, `/data` on a git repo, side container
@@ -72,6 +86,7 @@ _TODO: **Verify this!** But the underlying Persistent Disks (PDs) are not delete
 - [ ] https://github.com/OASIS-learn-study/swissarmyknife-minecraft-server
 - [ ] https://github.com/itzg/docker-minecraft-server#server-icon
 - [ ] custom derived container with JAR etc. pre-loaded
+- [ ] replace exposed RCON port by built-in webconsole
 - [ ] Bedrock via itzg/docker-minecraft-bedrock-server with https://github.com/itzg/minecraft-server-charts/tree/master/charts/minecraft-bedrock; or explore https://minecraft.gamepedia.com/Bedrock_Edition_server_software#Protocol_Translator_list
 
 - [ ] Backup via Snapshot of PD
@@ -79,7 +94,7 @@ _TODO: **Verify this!** But the underlying Persistent Disks (PDs) are not delete
       https://github.com/itzg/minecraft-server-charts/tree/master/charts/minecraft#backups?
 - [ ] push to Google Cloud Storage after taking backup, using docker-mc-backup [upcoming Restic support](https://github.com/itzg/docker-mc-backup/pull/3)
 - [ ] load from Google Cloud Storage, but using.. [Downloadable WORLD](https://github.com/itzg/docker-minecraft-server#downloadable-world) by GCS URL, or via Restic?
-- [X] clean shut-down, already done by itzg/minecraft-server with https://github.com/itzg/mc-server-runner; does not need *exec* [`rcon-cli stop`](https://github.com/itzg/docker-minecraft-server#interacting-with-the-server) ~~and must cause it to take a backup~~
+- [X] clean shut-down, already done by itzg/minecraft-server with https://github.com/itzg/mc-server-runner; does not need *exec* [`rcon-cli stop`](https://github.com/itzg/docker-minecraft-server#interacting-with-the-server)
 - [X] [Healthcheck](https://github.com/itzg/docker-minecraft-server#healthcheck)
 
 
