@@ -62,28 +62,32 @@ _TODO: **Verify this!** But the underlying Persistent Disks (PDs) are not delete
 
 - [X] Persistent Volume
 - [X] Set appropriate resource constraints
-- [ ] Readyness and liveness are broken and take a very long time, causing Service to not work.
-      (NB: If it still doesn't seem work even after `k describe pod mc-vanilla-0` reports Ready is True,
-       then it's probably jsut that the service's external IP has changed after a `delete` and re-`apply`...;)
 - [X] Locally test: 1. Creative, 2. with all items, 3. with slash commands. Custom server.properties?
+
 - [ ] Test PV.. survives YAML delete & apply? Survives cluster delete / apply?
 - [ ] JVM monitoring (agent?) with/for StackDriver, separate from `mc-monitor`
-- [ ] JVM memory up to max container memory, but start with less, and reduce continer to 1 GB
-- [ ] Storage Class?
-- [ ] read-only FS in MCS container, except `/data`
-- [ ] GitOps, `/data` on a git repo, side container
-- [ ] DNS names instead of IP
-- [ ] Two servers, with https://github.com/itzg/mc-router/tree/master/docs; no template, just simple sed/rpl
-- [ ] Scaffold Kubernetes Code Lab for hacking the MCS router
-- [ ] https://github.com/itzg/docker-bungeecord, with https://github.com/itzg/minecraft-server-charts/tree/master/charts/minecraft-proxy
-- [ ] Templating, simply using Xtend, from literal objects, later YAML, into files in git - for now (see below).
-      Not kpt, Helm, nor Kustomize or CUE or Flux or Nix.
-- [ ] gRPC CreateServer ^^^ at runtime with Service Account
-- [ ] `/server list`, `/server create`
+- [ ] JVM memory up to max container memory, but start with less, and reduce container to 1 GB
+
+- [ ] Scaffold Kubernetes Code Lab for hacking the MCS router to scale up ReplicaSet to 1 if its 0 when connecting
 - [ ] https://github.com/itzg/mc-monitor on StackDriver, see
       https://github.com/GoogleCloudPlatform/k8s-stackdriver/tree/master/prometheus-to-sd
       `kubectl exec mc-vanilla-0 -- mc-monitor export-for-prometheus -servers localhost`
 - [ ] Scale Down StatefulSet to 0 when no Players for N minutes, query via monitoring!
+
+- [ ] Two servers, with https://github.com/itzg/mc-router/tree/master/docs; no template, just simple sed/rpl
+- [ ] Templating, simply using Xtend, from literal objects, later YAML, into files in git - for now (see below).
+      Not kpt, Helm, nor Kustomize or CUE or Flux or Nix.
+- [ ] gRPC CreateServer ^^^ at runtime with Service Account
+- [ ] `/server list`, `/server create`
+- [ ] DNS name `oasis.learn.study` instead of IP
+
+- [ ] Readyness and liveness are broken and take a very long time, causing Service to not work.
+      (NB: If it still doesn't seem work even after `k describe pod mc-vanilla-0` reports Ready is True,
+       then it's probably jsut that the service's external IP has changed after a `delete` and re-`apply`...;)
+- [ ] Storage Class?
+- [ ] read-only FS in MCS container, except `/data`
+- [ ] GitOps, `/data` on a git repo, side container
+- [ ] https://github.com/itzg/docker-bungeecord, with https://github.com/itzg/minecraft-server-charts/tree/master/charts/minecraft-proxy
 - [ ] https://filebrowser.org/features integration
 - [ ] Freemium ;) time bomb :) It's an extension of scaling down.
 - [ ] https://github.com/OASIS-learn-study/swissarmyknife-minecraft-server
