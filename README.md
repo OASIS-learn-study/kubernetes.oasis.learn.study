@@ -86,7 +86,7 @@ _TODO: **Verify this!** But the underlying Persistent Disks (PDs) are not delete
        then it's probably jsut that the service's external IP has changed after a `delete` and re-`apply`...;)
 - [ ] Storage Class?
 - [ ] read-only FS in MCS container, except `/data`
-- [ ] GitOps, `/data` on a git repo, side container
+- [ ] GitOps, `/data` on a git repo, side container; e.g. using something like https://github.com/fvanderbiest/docker-volume-git-backup
 - [ ] https://github.com/itzg/docker-bungeecord, with https://github.com/itzg/minecraft-server-charts/tree/master/charts/minecraft-proxy
 - [ ] https://filebrowser.org/features integration
 - [ ] Freemium ;) time bomb :) It's an extension of scaling down.
