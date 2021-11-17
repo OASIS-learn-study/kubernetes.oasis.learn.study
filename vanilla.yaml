@@ -34,16 +34,37 @@ spec:
       # https://kubernetes.io/docs/tasks/run-application/force-delete-stateful-set-pod/ ?
       # terminationGracePeriodSeconds: 13
       containers:
-      - image: itzg/minecraft-server
+      # Using a fixed release tag always prevents unexpected surprises!
+      - image: itzg/minecraft-server:2021.22.0-java16-openj9
         name: mc-vanilla
         resources:
           requests:
-            memory: "2048Mi"
+            # https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview#allowable_resource_ranges
+            # The 512 should avoid "Warning: Autopilot increased resource requests (...) to meet requirements."
+            memory: "512Mi"
             cpu: "2"
           limits:
             memory: "2048Mi"
             cpu: "4"
         env:
+        # https://github.com/OASIS-learn-study/kubernetes.oasis.learn.study#memory-management
+        - name: JVM_XX_OPTS
+          # NB that e.g. USE_AIKAR_FLAGS doesn't really make sense anymore with OpenJ9, let's fail fast to avoid confusion
+          value: "-XX:-IgnoreUnrecognizedXXColonOptions"
+        - name: INIT_MEMORY
+          # this lets the JVM return unused heap memory to the OS!
+          value: "500M"
+        - name: MAX_MEMORY
+          # should probably be something a bit lower than container memory limit, but exactly is TBD
+          value: "1800M"
+        - name: USE_LARGE_PAGES
+          value: "true"
+        - name: TUNE_VIRTUALIZED
+          # https://www.eclipse.org/openj9/docs/xtunevirtualized/
+          value: "true"
+        - name: TUNE_NURSERY_SIZES
+          value: "true"
+        # Now other stuff not related to memory managment
         - name: RCON_PASSWORD
           valueFrom:
             secretKeyRef:

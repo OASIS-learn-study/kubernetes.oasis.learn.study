@@ -1,11 +1,13 @@
 # kubernetes.oasis.learn.study
 
-Resources to run Minecraft on a Kubernetes cluster.
+Resources to run Minecraft on a Kubernetes cluster. Based on:
+
+* https://github.com/itzg/docker-minecraft-server
 
 
 ## Usage
 
-https://github.com/vorburger/LearningKubernetes-CodeLabs/blob/develop/docs/install.md#google-kubernetes-engine-gke
+Follow https://github.com/vorburger/LearningKubernetes-CodeLabs/blob/develop/docs/install.md#google-kubernetes-engine-gke, and:
 
     gcloud --project=oasis-learn-study container clusters create-auto cluster1 --zone=europe-west4
     gcloud container clusters get-credentials cluster1 --project=oasis-learn-study --region=europe-west4
@@ -14,11 +16,17 @@ https://github.com/vorburger/LearningKubernetes-CodeLabs/blob/develop/docs/insta
     kubectl apply -f vanilla.yaml
     kubectl get service mc-vanilla
 
-You can connect to your Minecraft Server at the `EXTERNAL-IP` shown. To troubleshoot & debug startup issues, use:
+You can connect to your Minecraft Server at the `EXTERNAL-IP` shown.
+
+### Debug
+
+To troubleshoot & debug startup issues, use:
 
     kubectl rollout status sts/mc-vanilla
     kubectl describe pod mc-vanilla-0
     kubectl logs -f mc-vanilla-0
+
+### RCON
 
 You can use an [RCON](https://wiki.vg/RCON) client such as [`rcon-cli`](https://github.com/itzg/rcon-cli) to connect to the admin console: (But please note that the RCON protocol is not encrypted, meaning that your passwords are transmitted in plain text to the server. A future version of this project may include a more secure web-based admin console, instead.)
 
@@ -26,6 +34,8 @@ You can use an [RCON](https://wiki.vg/RCON) client such as [`rcon-cli`](https://
     rcon-cli --host=34.91.151.169 --port=25575 --password=(kubectl get secret mc-vanilla -o jsonpath={.data.rcon} | base64 --decode)
     /list
     /op $YOURSELF
+
+### Stop & Delete
 
 You can stop the server by scaling it down using (and back up with `--replicas=1`):
 
@@ -36,7 +46,8 @@ To tear down the entire cluster:
     gcloud container clusters delete cluster1
 
 Note that deleting the cluster will obviously delete it's _PersistentVolumes_ and _PersistentVolumeClaims_.
-_TODO: **Verify this!** But the underlying Persistent Disks (PDs) are not deleted, so worlds come back when recreating the cluster!_
+The underlying Persistent Disks (PDs) are not deleted, but worlds won't just nicely come back when re-creating the cluster,
+because the PV/PVC-to-PD association will be lost; you would have to manually fix that.  (Don't forget to delete old PDs.)
 
 
 ## Development
@@ -54,8 +65,43 @@ _TODO: **Verify this!** But the underlying Persistent Disks (PDs) are not delete
 ### Docker
 
     mkdir /tmp/mcs
-    podman run -p 25565:25565 -e EULA=TRUE -e VERSION=1.17.1 -e MODE=1 -v /tmp/mcs:/data:Z --rm --name mcs itzg/minecraft-server
+    podman run -p 25565:25565 -m 2000M -e EULA=TRUE -e VERSION=1.17.1 -e MODE=1 -v /tmp/mcs:/data:Z --rm --name mcs itzg/minecraft-server:2021.22.0
+    podman exec -it mcs bash
     podman rm -f mcs
+
+### Memory Management
+
+The `itzg/minecraft-server` container image uses Java 16 from https://adoptium.net (at least
+from its `:2021.22.0`, see https://github.com/itzg/docker-minecraft-server/issues/1054).
+This Hotspot image with a vanilla server consumes about 1.3 GB after startup-up, without players.
+Even with `-e JVM_XX_OPTS="-XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:G1PeriodicGCInterval=1000 -XX:G1 PeriodicGCSystemLoadThreshold=0" -e INIT_MEMORY=100M -e EULA=TRUE -e VERSION=1.17.1 -e MODE=1` it would not go
+lower than these 1.3 GB, even after a `jcmd 37 GC.run` (which also fails with `com.sun.tools.attach.AttachNotSupportedException: Unable to open socket file /proc/37/root/tmp/.java_pid37: target process 37 doesn't respond within 10500ms or HotSpot VM not loaded`, yet still seems to cause GC; see JVM output on Minecraft container log.)
+So https://openjdk.java.net/jeps/346 somehow doesn't work here.
+
+The `:2021.22.0-java16-openj9` variant which uses https://www.eclipse.org/openj9/ during the
+initial `Preparing spawn area` also goes up to about 1.2 GB, but then (without players) back down to 770 MB!
+(With the same settings as above.)  Note that the `INIT_MEMORY=100M` (which translate to -Xms100M) are critical,
+because without that, `itzg/minecraft-server` sets `-Xms1G -Xmx1G`, which prevents it to drop to those 770 MB.
+(Note that J9's `IdleTuningGcOnIdle` is [the default when running in a docker container](https://www.eclipse.org/openj9/docs/xxidletuninggconidle/).)
+
+With `-e JVM_OPTS="-Xgcpolicy:balanced"` we're even down to ~740 MB for Vanilla 1.17.1 before Players connect.
+
+The first player that connects then pushes us briefly to 1.1 GB, and then back down to around ~840-860 MB or so.
+(or even just 820 MB with the `balanced` instead of the default `gencon` GC policy of OpenJ9).
+
+Unfortunately disconnecting the Player doesn't reclaim those 90 MB anymore, and we remain at 860 MB
+(or about 850 MB with the `balanced` GC); even after `jcmd 37 GC.run` (which works on OpenJ9 without that error from above).
+
+
+### Startup Time
+
+[`USE_AIKAR_FLAGS=true`](https://github.com/itzg/docker-minecraft-server#enable-aikars-flags) seems to
+boost initial start up time almost 300% - e.g. on a desktop from ~30s to ~12s. (Note that `USE_AIKAR_FLAGS=true`
+includes `-XX:+DisableExplicitGC`.)
+
+A larger heap, such as e.g. `-e INIT_MEMORY=1500M -e MAX_MEMORY=1500M` does not appear so signfificantly decrease start-up time.
+
+Using _Shared Classes_, on a persistent volume, may help further (TBD).
 
 
 ## ToDo
@@ -63,10 +109,14 @@ _TODO: **Verify this!** But the underlying Persistent Disks (PDs) are not delete
 - [X] Persistent Volume
 - [X] Set appropriate resource constraints
 - [X] Locally test: 1. Creative, 2. with all items, 3. with slash commands. Custom server.properties?
+- [X] Test PV.. survives YAML delete & apply? Survives cluster delete / apply?
 
-- [ ] Test PV.. survives YAML delete & apply? Survives cluster delete / apply?
 - [ ] JVM monitoring (agent?) with/for StackDriver, separate from `mc-monitor`
-- [ ] JVM memory up to max container memory, but start with less, and reduce container to 1 GB
+- [X] JVM memory up to max container memory, but start with less, and reduce container to 1 GB
+- [X] Memory tweaking using e.g. https://github.com/itzg/docker-minecraft-server#enable-aikars-flags
+      from https://aikar.co/2018/07/02/tuning-the-jvm-g1gc-garbage-collector-flags-for-minecraft/,
+      or https://github.com/etil2jz/etil-minecraft-flags, compare with https://startmc.sh ?
+- [ ] tweak OpenJ9 Nursery GC with `-Xmns` and `-Xmnx` as described in https://steinborn.me/posts/tuning-minecraft-openj9/
 
 - [ ] Scaffold Kubernetes Code Lab for hacking the MCS router to scale up ReplicaSet to 1 if its 0 when connecting
 - [ ] https://github.com/itzg/mc-monitor on StackDriver, see
@@ -81,6 +131,15 @@ _TODO: **Verify this!** But the underlying Persistent Disks (PDs) are not delete
 - [ ] `/server list`, `/server create`
 - [ ] DNS name `oasis.learn.study` instead of IP
 
+- [ ] Try alternative servers than Vanilla, like https://blog.airplane.gg/about/ et al.
+- [ ] Logs to file by default? Will grow memory, that's bad. Must be "12 factor", and STDOUT, only.
+      Note also https://github.com/itzg/docker-minecraft-server#enabling-rolling-logs
+- [ ] decrease start-up time, J9 https://www.eclipse.org/openj9/docs/shrc/
+      see also https://www.eclipse.org/openj9/docs/xshareclasses/ ?
+      Probably need to make sure they go to /data/ instead of /tmp for this to work.
+- [ ] play further with GC and memory management settings, using https://gceasy.io, and
+      https://marketplace.eclipse.org/content/ibm-monitoring-and-diagnostic-tools-garbage-collection-and-memory-visualizer-gcmv
+      see https://www.eclipse.org/openj9/docs/vgclog/
 - [ ] Readyness and liveness are broken and take a very long time, causing Service to not work.
       (NB: If it still doesn't seem work even after `k describe pod mc-vanilla-0` reports Ready is True,
        then it's probably jsut that the service's external IP has changed after a `delete` and re-`apply`...;)
