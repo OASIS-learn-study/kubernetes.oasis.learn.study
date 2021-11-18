@@ -42,10 +42,16 @@ spec:
             # https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview#allowable_resource_ranges
             # The 512 should avoid "Warning: Autopilot increased resource requests (...) to meet requirements."
             memory: "512Mi"
-            cpu: "2"
+            # 0.1 which gets rounded up to 0.25 (see above) makes start-up of Vanilla 1.17.1 take several minutes
+            # but 1 could be better than 2, because it would allow idle https://github.com/itzg/docker-minecraft-server/#autopaus
+            # to be priced for lower 0.9 instead of 1.03 Memory than the min. 1 GiB a 2 CPU pods gets charged, because of 
+            # https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview
+            # But 1 vCPU takes 100s (1.5') to start-up, but with 4 vCPU only 17s, and with 8 vCPU it's 12s.
+            # Even though even a server without players will initially eat up all 8, the AutoPause will soon reduce it to 0.
+            cpu: "8"
           limits:
-            memory: "2048Mi"
-            cpu: "4"
+            memory: "4096Mi"
+            cpu: "8"
         env:
         # https://github.com/OASIS-learn-study/kubernetes.oasis.learn.study#memory-management
         - name: JVM_XX_OPTS
