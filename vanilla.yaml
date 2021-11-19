@@ -4,6 +4,8 @@ metadata:
   name: mc-vanilla
   labels:
     app: mc-vanilla
+  annotations:
+    "mc-router.itzg.me/externalServerName": "oasis.learn.study"
 spec:
   ports:
   - port: 25565
