@@ -1,9 +1,10 @@
 # kubernetes.oasis.learn.study
 
-Resources to run Minecraft on a Kubernetes cluster. Based on:
+Resources to run Minecraft servers on a Kubernetes cluster
+such as Google Kubernetes Engine (GKE) on Google Cloud (GCP). Based on:
 
 * https://github.com/itzg/docker-minecraft-server
-
+* https://github.com/itzg/mc-router
 
 ## Usage
 
@@ -21,6 +22,9 @@ by the last command above in your local `/etc/hosts` file. You could also add a 
 register in your local `/etc/hosts` file again e.g. as this `test2.learn.study`, unless you have DNS) like this:
 
     sed 's/mc-vanilla/test2/g' vanilla.yaml | sed 's/oasis.learn.study/test2.learn.study/' | kubectl apply -f -
+
+If this doesn't work, the most likely explanation is that you've [run out of quota,
+and need to edit to request more](https://console.cloud.google.com/iam-admin/quotas).
 
 ### Debug
 
