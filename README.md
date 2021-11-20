@@ -13,10 +13,14 @@ Follow https://github.com/vorburger/LearningKubernetes-CodeLabs/blob/develop/doc
     gcloud container clusters get-credentials cluster1 --project=oasis-learn-study --region=europe-west4
 
     pwgen -s 101 1 | kubectl create secret generic mc-vanilla --from-file=rcon=/dev/stdin
-    kubectl apply -f vanilla.yaml
-    kubectl get service mc-vanilla
+    kubectl apply -f .
+    kubectl get service mc-router
 
-You can connect to your Minecraft Server at the `EXTERNAL-IP` shown.
+You can connect to your Minecraft Server by mapping a hostname such as `oasis.learn.study` to the `EXTERNAL-IP` shown
+by the last command above in your local `/etc/hosts` file. You could also add a 2nd Minecraft server (which you also need to
+register in your local `/etc/hosts` file again e.g. as this `test2.learn.study`, unless you have DNS) like this:
+
+    sed 's/mc-vanilla/test2/g' vanilla.yaml | sed 's/oasis.learn.study/test2.learn.study/' | kubectl apply -f -
 
 ### Debug
 
@@ -25,6 +29,14 @@ To troubleshoot & debug startup issues, use:
     kubectl rollout status sts/mc-vanilla
     kubectl describe pod mc-vanilla-0
     kubectl logs -f mc-vanilla-0
+
+    kubectl logs -f mc-router-...
+
+### Fixed IP address
+
+Navigate to https://console.cloud.google.com/networking/addresses/list and click _Reserve_ to turn
+the _Ephemeral External IP address_ of the `mc-router` service of type `LoadBalancer` into a fixed static IP,
+which you can use in a DNS entry. Further background e.g. on https://cloud.google.com/kubernetes-engine/docs/tutorials/configuring-domain-name-static-ip.
 
 ### RCON
 
@@ -57,6 +69,8 @@ because the PV/PVC-to-PD association will be lost; you would have to manually fi
     kubectl exec mc-vanilla-0 -- mc-monitor status
 
     kubectl exec mc-vanilla-0 -- bash -c 'echo $RCON_PASSWORD'
+
+    kubectl exec -it mc-vanilla-0 -- bash
 
 **BEWARE** that YAML changes to `env`ironment variables of `itzg/minecraft-server` container will NOT affect existing servers with the image, because many of it's startup parameter environment variables are written into the persistent `/data/server.properties` only when the `StatefulSet` PV is automatically created the first time. To remove that (and **loose your world data**) we have to delete the PVC (which also deletes the PD):
 
@@ -124,7 +138,9 @@ Using _Shared Classes_, on a persistent volume, may help further (TBD).
       `kubectl exec mc-vanilla-0 -- mc-monitor export-for-prometheus -servers localhost`
 - [ ] Scale Down StatefulSet to 0 when no Players for N minutes, query via monitoring!
 
-- [ ] Two servers, with https://github.com/itzg/mc-router/tree/master/docs; no template, just simple sed/rpl
+- [ ] Wildcard DNS - how-to?
+- [ ] Add default server, a simple empty world with a shield saying "Wrong server name" (from git, without PV)
+- [X] Two servers, with https://github.com/itzg/mc-router/tree/master/docs; no template, just simple sed/rpl
 - [ ] Templating, simply using Xtend, from literal objects, later YAML, into files in git - for now (see below).
       Not kpt, Helm, nor Kustomize or CUE or Flux or Nix.
 - [ ] gRPC CreateServer ^^^ at runtime with Service Account
