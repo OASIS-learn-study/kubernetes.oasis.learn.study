@@ -21,6 +21,7 @@ You can connect to your Minecraft Server by mapping a hostname such as `oasis.le
 by the last command above in your local `/etc/hosts` file. You could also add a 2nd Minecraft server (which you also need to
 register in your local `/etc/hosts` file again e.g. as this `test2.learn.study`, unless you have DNS) like this:
 
+    pwgen -s 101 1 | kubectl create secret generic test2 --from-file=rcon=/dev/stdin
     sed 's/mc-vanilla/test2/g' vanilla.yaml | sed 's/oasis.learn.study/test2.learn.study/' | kubectl apply -f -
 
 If this doesn't work, the most likely explanation is that you've [run out of quota,
