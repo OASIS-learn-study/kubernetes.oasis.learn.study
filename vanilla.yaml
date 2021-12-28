@@ -36,9 +36,9 @@ spec:
       # https://kubernetes.io/docs/tasks/run-application/force-delete-stateful-set-pod/ ?
       # terminationGracePeriodSeconds: 13
       containers:
-      # Using a fixed release tag always prevents unexpected surprises!
+      # Using a fixed release tag instead of :latest always prevents unexpected surprises!
       - image: itzg/minecraft-server:2021.22.0-java16-openj9
-        name: mc-vanilla
+        name: server
         resources:
           requests:
             # https://cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview#allowable_resource_ranges
@@ -111,6 +111,27 @@ spec:
         volumeMounts:
         - name: mc-data
           mountPath: /data
+      # Using a fixed release tag instead of :latest always prevents unexpected surprises!
+      - image: itzg/mc-monitor:0.10.6
+        name: monitor
+        args:
+          - export-for-prometheus
+        env:
+          - name: EXPORT_SERVERS
+            value: "localhost:25565"
+          - name: EXPORT_PORT
+            value: "8080"
+        ports:
+        - containerPort: 8080
+          name: prometheus
+        resources:
+          requests:
+            # The http://g.co/gke/autopilot-resources default of 512 MiB is WAY too much for this, but for now:
+            memory: "512Mi"
+            cpu: "1"
+          limits:
+            memory: "512Mi"
+            cpu: "1"
   volumeClaimTemplates:
   - metadata:
       name: mc-data
@@ -120,3 +141,14 @@ spec:
       resources:
         requests:
           storage: 1Gi
+---
+apiVersion: monitoring.gke.io/v1alpha1
+kind: PodMonitor
+metadata:
+  name: mc-vanilla-monitor
+spec:
+  selector:
+    matchLabels:
+      app: mc-vanilla
+  podMetricsEndpoints:
+  - port: prometheus

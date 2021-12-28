@@ -4,13 +4,14 @@ Resources to run Minecraft servers on a Kubernetes cluster
 such as Google Kubernetes Engine (GKE) on Google Cloud (GCP). Based on:
 
 * https://github.com/itzg/docker-minecraft-server
+* https://github.com/itzg/mc-monitor
 * https://github.com/itzg/mc-router
 
 ## Usage
 
 Follow https://github.com/vorburger/LearningKubernetes-CodeLabs/blob/develop/docs/install.md#google-kubernetes-engine-gke, and:
 
-    gcloud --project=oasis-learn-study container clusters create-auto cluster1 --zone=europe-west4
+    gcloud beta --project=oasis-learn-study container clusters create-auto cluster1 --zone=europe-west4 --monitoring=SYSTEM,WORKLOAD
     gcloud container clusters get-credentials cluster1 --project=oasis-learn-study --region=europe-west4
 
     pwgen -s 101 1 | kubectl create secret generic mc-vanilla --from-file=rcon=/dev/stdin
@@ -130,6 +131,7 @@ Using _Shared Classes_, on a persistent volume, may help further (TBD).
 - [X] Locally test: 1. Creative, 2. with all items, 3. with slash commands. Custom server.properties?
 - [X] Test PV.. survives YAML delete & apply? Survives cluster delete / apply?
 
+- [ ] GKE Autopilot Memory http://g.co/gke/autopilot-resources causes a mess - why 9 (!) GB instead of 4? Wrong Units??
 - [ ] JVM monitoring (agent?) with/for StackDriver, separate from `mc-monitor`
 - [X] JVM memory up to max container memory, but start with less, and reduce container to 1 GB
 - [X] Memory tweaking using e.g. https://github.com/itzg/docker-minecraft-server#enable-aikars-flags
@@ -137,9 +139,9 @@ Using _Shared Classes_, on a persistent volume, may help further (TBD).
       or https://github.com/etil2jz/etil-minecraft-flags, compare with https://startmc.sh ?
 - [ ] tweak OpenJ9 Nursery GC with `-Xmns` and `-Xmnx` as described in https://steinborn.me/posts/tuning-minecraft-openj9/
 
-- [ ] Scaffold Kubernetes Code Lab for hacking the MCS router to scale up ReplicaSet to 1 if its 0 when connecting
-- [ ] https://github.com/itzg/mc-monitor on StackDriver, see
-      https://github.com/GoogleCloudPlatform/k8s-stackdriver/tree/master/prometheus-to-sd
+- [X] Scaffold Kubernetes Code Lab for hacking the MCS router to scale up ReplicaSet to 1 if its 0 when connecting;
+      see https://github.com/itzg/mc-router/pull/29.
+- [X] https://github.com/itzg/mc-monitor on StackDriver:
       `kubectl exec mc-vanilla-0 -- mc-monitor export-for-prometheus -servers localhost`
 - [ ] Scale Down StatefulSet to 0 when no Players for N minutes, query via monitoring!
 
@@ -151,6 +153,8 @@ Using _Shared Classes_, on a persistent volume, may help further (TBD).
 - [ ] gRPC CreateServer ^^^ at runtime with Service Account
 - [ ] `/server list`, `/server create`
 - [ ] DNS name `oasis.learn.study` instead of IP
+
+- [ ] Cluster Security hardening: Exploring using Private instead of Public cluster, with `mc-router` on Cloud Run?
 
 - [ ] Try alternative servers than Vanilla, like https://blog.airplane.gg/about/ et al.
 - [ ] Logs to file by default? Will grow memory, that's bad. Must be "12 factor", and STDOUT, only.
@@ -166,7 +170,7 @@ Using _Shared Classes_, on a persistent volume, may help further (TBD).
        then it's probably jsut that the service's external IP has changed after a `delete` and re-`apply`...;)
 - [ ] Storage Class?
 - [ ] read-only FS in MCS container, except `/data`
-- [ ] GitOps, `/data` on a git repo, side container; e.g. using something like https://github.com/fvanderbiest/docker-volume-git-backup
+
 - [ ] https://github.com/itzg/docker-bungeecord, with https://github.com/itzg/minecraft-server-charts/tree/master/charts/minecraft-proxy
 - [ ] https://filebrowser.org/features integration
 - [ ] Freemium ;) time bomb :) It's an extension of scaling down.
@@ -176,6 +180,7 @@ Using _Shared Classes_, on a persistent volume, may help further (TBD).
 - [ ] replace exposed RCON port by built-in webconsole
 - [ ] Bedrock via itzg/docker-minecraft-bedrock-server with https://github.com/itzg/minecraft-server-charts/tree/master/charts/minecraft-bedrock; or explore https://minecraft.gamepedia.com/Bedrock_Edition_server_software#Protocol_Translator_list
 
+- [ ] GitOps, `/data` on a git repo, side container; e.g. using something like https://github.com/fvanderbiest/docker-volume-git-backup
 - [ ] Backup via Snapshot of PD
 - [ ] Backup, with https://github.com/itzg/docker-mc-backup or à la
       https://github.com/itzg/minecraft-server-charts/tree/master/charts/minecraft#backups?
