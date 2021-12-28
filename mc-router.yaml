@@ -60,7 +60,7 @@ spec:
       containers:
       - image: itzg/mc-router:1.13.0 
         name: mc-router
-        args: ["--in-kube-cluster"]
+        args: ["--in-kube-cluster", "--auto-scale-up"]
         ports:
         - name: proxy
           containerPort: 25565
