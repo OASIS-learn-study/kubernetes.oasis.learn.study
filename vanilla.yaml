@@ -37,7 +37,7 @@ spec:
       # terminationGracePeriodSeconds: 13
       containers:
       # Using a fixed release tag instead of :latest always prevents unexpected surprises!
-      - image: itzg/minecraft-server:2021.22.0-java16-openj9
+      - image: itzg/minecraft-server:2021.27.0-java16-openj9
         name: server
         resources:
           requests:
@@ -82,6 +82,8 @@ spec:
           value: "true"
         - name: VERSION
           # https://github.com/itzg/docker-minecraft-server#versions
+          # NB 1.18.1 requires Java 17, but OpenJ9 only has Java 16, see:
+          # https://github.com/itzg/docker-minecraft-server/issues/1234
           value: "1.17.1"
         - name: MODE
           value: "1"
