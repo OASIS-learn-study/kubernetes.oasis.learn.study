@@ -126,6 +126,8 @@ Using _Shared Classes_, on a persistent volume, may help further (TBD).
 
 ## ToDo
 
+- [ ] Status ping should not wake (scale) up container :( https://github.com/itzg/mc-router/issues/36
+
 - [X] Persistent Volume
 - [X] Set appropriate resource constraints
 - [X] Locally test: 1. Creative, 2. with all items, 3. with slash commands. Custom server.properties?
