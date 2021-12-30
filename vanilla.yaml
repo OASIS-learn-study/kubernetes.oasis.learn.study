@@ -134,6 +134,22 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "1"
+      - image: filebrowser
+        name: filebrowser
+        volumeMounts:
+        - name: mc-data
+          mountPath: /srv
+        ports:
+        - containerPort: 80
+          name: web
+        resources:
+          requests:
+            # The http://g.co/gke/autopilot-resources default of 512 MiB is WAY too much for this, but for now:
+            memory: "512Mi"
+            cpu: "1"
+          limits:
+            memory: "512Mi"
+            cpu: "1"
   volumeClaimTemplates:
   - metadata:
       name: mc-data
