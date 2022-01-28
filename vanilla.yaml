@@ -39,7 +39,7 @@ kind: Ingress
 metadata:
   name: mc-vanilla-filebrowser-ingress
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: "oasis-learn-study"
+    # kubernetes.io/ingress.global-static-ip-name: "oasis-learn-study"
 spec:
   rules:
   - http:
