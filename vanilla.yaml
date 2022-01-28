@@ -18,6 +18,40 @@ spec:
     app: mc-vanilla
   type: ClusterIP
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mc-vanilla-filebrowser
+  labels:
+    app: mc-vanilla
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+    name: filebrowser
+  selector:
+    app: mc-vanilla
+  type: NodePort
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mc-vanilla-filebrowser-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: "oasis-learn-study"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /asdlck29uawvasdiujn
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: mc-vanilla-filebrowser
+            port:
+              number: 80
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -134,14 +168,14 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "1"
-      - image: filebrowser
+      - image: gcr.io/oasis-learn-study/github.com/oasis-learn-study/kubernetes.oasis.learn.study
         name: filebrowser
         volumeMounts:
         - name: mc-data
           mountPath: /srv
         ports:
         - containerPort: 80
-          name: web
+          name: filebrowser
         resources:
           requests:
             # The http://g.co/gke/autopilot-resources default of 512 MiB is WAY too much for this, but for now:
