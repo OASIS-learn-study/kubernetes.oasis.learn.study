@@ -168,7 +168,7 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "1"
-      - image: gcr.io/oasis-learn-study/github.com/oasis-learn-study/kubernetes.oasis.learn.study
+      - image: europe-docker.pkg.dev/oasis-learn-study/dev/kubernetes.oasis.learn.study-filebrowser:latest
         name: filebrowser
         volumeMounts:
         - name: mc-data
