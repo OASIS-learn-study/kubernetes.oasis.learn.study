@@ -9,7 +9,11 @@ HEALTHCHECK --start-period=2s --interval=5s --timeout=3s \
 VOLUME /srv
 EXPOSE 80
 
-COPY filebrowser.db /filebrowser.db
-ADD https://github.com/filebrowser/filebrowser/releases/download/v2.20.1/linux-amd64-filebrowser.tar.gz /filebrowser
+COPY settings.yaml /settings.yaml
+COPY users.yaml /users.yaml
+COPY filebrowser /filebrowser
+
+RUN filebrowser config import /settings.yaml
+RUN filebrowser users import /users.yaml
 
 ENTRYPOINT [ "/filebrowser" ]
