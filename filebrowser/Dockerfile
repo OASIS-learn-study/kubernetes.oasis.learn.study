@@ -11,9 +11,10 @@ EXPOSE 80
 
 COPY settings.yaml /settings.yaml
 COPY users.yaml /users.yaml
-COPY filebrowser /filebrowser
-
 RUN filebrowser config import /settings.yaml
 RUN filebrowser users import /users.yaml
+
+RUN curl -L https://github.com/filebrowser/filebrowser/releases/download/v2.20.1/linux-amd64-filebrowser.tar.gz | tar -xvz -C /
+RUN chmod +x /filebrowser
 
 ENTRYPOINT [ "/filebrowser" ]
