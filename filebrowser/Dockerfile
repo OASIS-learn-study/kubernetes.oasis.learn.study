@@ -10,6 +10,6 @@ VOLUME /srv
 EXPOSE 80
 
 COPY filebrowser.db /filebrowser.db
-COPY filebrowser /filebrowser
+ADD https://github.com/filebrowser/filebrowser/releases/download/v2.20.1/linux-amd64-filebrowser.tar.gz /filebrowser
 
 ENTRYPOINT [ "/filebrowser" ]
