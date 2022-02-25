@@ -14,7 +14,9 @@ RUN chmod +x /filebrowser
 
 COPY settings.yaml /settings.yaml
 COPY users.yaml /users.yaml
+COPY start-filebrowser.sh /start-filebrowser.sh
+
 RUN /filebrowser config import /settings.yaml
 RUN /filebrowser users import /users.yaml
 
-ENTRYPOINT [ "/filebrowser" ]
+ENTRYPOINT [ "/start-filebrowser.sh" ]
