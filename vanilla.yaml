@@ -173,6 +173,9 @@ spec:
         volumeMounts:
         - name: mc-data
           mountPath: /srv
+        env:
+          - name: CONTEXT_ROOT
+            value: "/asdlck29uawvasdiujn"
         ports:
         - containerPort: 80
           name: filebrowser
