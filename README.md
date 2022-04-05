@@ -127,6 +127,7 @@ Using _Shared Classes_, on a persistent volume, may help further (TBD).
 ## ToDo
 
 - [ ] Status ping should not wake (scale) up container :( https://github.com/itzg/mc-router/issues/36
+      Use https://github.com/LanternPowered/Pingy or similar?
 
 - [X] Persistent Volume
 - [X] Set appropriate resource constraints
@@ -158,7 +159,7 @@ Using _Shared Classes_, on a persistent volume, may help further (TBD).
 
 - [ ] Cluster Security hardening: Exploring using Private instead of Public cluster, with `mc-router` on Cloud Run?
 
-- [ ] Try alternative servers than Vanilla, like https://blog.airplane.gg/about/ et al.
+- [ ] Try alternative servers than Vanilla, like https://github.com/LanternPowered/Lantern or https://blog.airplane.gg/about/ et al.
 - [ ] Logs to file by default? Will grow memory, that's bad. Must be "12 factor", and STDOUT, only.
       Note also https://github.com/itzg/docker-minecraft-server#enabling-rolling-logs
 - [ ] decrease start-up time, J9 https://www.eclipse.org/openj9/docs/shrc/
@@ -176,8 +177,6 @@ Using _Shared Classes_, on a persistent volume, may help further (TBD).
 - [ ] https://github.com/itzg/docker-bungeecord, with https://github.com/itzg/minecraft-server-charts/tree/master/charts/minecraft-proxy
 - [ ] https://filebrowser.org/features integration
 - [ ] Freemium ;) time bomb :) It's an extension of scaling down.
-- [ ] https://github.com/OASIS-learn-study/swissarmyknife-minecraft-server
-- [ ] https://github.com/itzg/docker-minecraft-server#server-icon
 - [ ] custom derived container with JAR etc. pre-loaded
 - [ ] replace exposed RCON port by built-in webconsole
 - [ ] Bedrock via itzg/docker-minecraft-bedrock-server with https://github.com/itzg/minecraft-server-charts/tree/master/charts/minecraft-bedrock; or explore https://minecraft.gamepedia.com/Bedrock_Edition_server_software#Protocol_Translator_list
