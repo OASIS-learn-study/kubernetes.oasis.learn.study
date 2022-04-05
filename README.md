@@ -128,6 +128,7 @@ Using _Shared Classes_, on a persistent volume, may help further (TBD).
 
 - [ ] Status ping should not wake (scale) up container :( https://github.com/itzg/mc-router/issues/36
       Use https://github.com/LanternPowered/Pingy or similar?
+      Or ditch mc-router and start over, with ... https://velocitypowered.com?
 
 - [X] Persistent Volume
 - [X] Set appropriate resource constraints
